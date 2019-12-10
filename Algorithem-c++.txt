@@ -1,0 +1,477 @@
+sTART
+  EXECUTE selection_options()
+END
+
+
+
+randomHiddenGrid()
+	**random_numbers=nw int*[4]
+	EXECUTE srand(time(NULL))
+	a=0
+	WHILE a<4
+		random_numbers[a]=new int[4]
+		b=0
+		WHILE b<4
+			random_numbers[a][b]=rand()%6
+			b++
+		END WHILE
+		a++
+	END WHILE
+RETURN
+
+
+
+
+
+getName()
+	INPUT player_name
+RETURN
+
+
+
+
+insertInitialAmount()
+	count_loop=1
+	count_attempt=0
+	WHILE countloop!=0 && count_attempt<3
+		INPUT initial_amount
+		countloop=0
+		count_attempt++
+		IF cin.fail THEN
+			IF count_attempt<3 THEN
+				Print number of attempts player has
+				countloop=1
+			ELSE 
+					PRINT error message
+					EXECUTE selection_options()
+					RETURN
+			END IF
+		ELSE
+			IF initial_amount<500||initial_amount>10000 THEN
+				IF count_attempt<3 THEN
+					PRINT number of attempts player has
+					countloop=1
+				ELSE
+					PRINT error message
+					EXECUTE selection_options()
+					RETURN
+				END IF
+			END IF
+		END IF
+	END WHILE
+RETURN
+
+
+
+
+selection_options()
+	choice=7
+	WHILE choice!=6 && choice!=1
+		choice=menu()
+		IF choice==1 THEN
+			EXECUTE login()
+		ELSE IF choice==2 THEN
+			EXECUTE view_player_details()
+		ELSE IF choice==3 THEN
+			EXECUTE create_new_admin_account()
+		ELSE IF choice==4 THEN
+			EXECUTE new_user_registration()
+		ELSE IF choice==5 THEN
+			EXECUTE reset_password()
+		ELSE IF choice==6 THEN
+			PRINT "THANK YOU"
+		ELSE 
+			PRINT "SORRY.TRY AGAIN"
+		END IF
+	END WHILE
+RETURN
+
+
+
+login()
+	count=0
+	WHILE count<3
+		INPUT user_name and password
+		OPEN Authentication.txt
+		READ headline from text file
+		READ user and pass from text file
+		WHILE !EOF
+			IF user_name==user && password==pass THEN
+				count=3
+				PRINT message
+				EXECUTE help()
+				EXECUTE displayLetterGrid()
+				EXECUTE calculate_and_display_amount(getName())
+				RETURN
+			ELSE
+				READ user and pass from text file
+			END IF
+		END WHILE	
+		IF count<2 THEN
+			count++
+			PRINT error message
+			CLOSE Authentication.txt
+		ELSE
+			IF count==2 THEN
+				PRINT error messages
+				EXECUTE selection_options()
+				RETURN
+			END IF
+		END IF
+	END WHILE		
+RETURN
+
+
+
+selection_options()
+choice=7
+WHILE choice!=6 && choice!=1
+	choice=menu()
+	CASE BASED ON choice
+	CASE==1
+		EXECUTE login()
+	CASE==2
+		EXECUTE view_palyer_details()
+	CASE==3
+		EXECUTE create_new_admin_account()
+	CASE==4
+		EXECUTE new_user_registration()
+	CASE==5
+		EXECUTE reset_password()
+	CASE==6
+		PRINT "Thank U"
+	DEFAULT 
+		PRINT "Sorry.Try Again"
+	END CASE
+END WHILE
+RETURN
+
+
+
+
+calculate_and_display_amount(string &player)
+	player_name1=player_name
+	initial_amount=insertInitialAmount()
+	bonus=0
+	total_amount=initial_amount
+	penalty_charge=0
+	current_amount=total_amount
+	count_loop=0
+	multiply=0
+	check_repeat=0
+	want_to-break=false
+	matched_the_letter=false
+	array_ele1=0
+	array_ele2=0
+	newrandom_numbers=randomHiddenGrid()
+	letters[4][4]={{'A','B','C','D'},{'E','F','G','H'},{'I','J','K','L'},{'M','N','O','P'}}
+	count_selection[4][4]={{0,0,0,0},{0,0,0,0},{0,0,0,0},{0,0,0,0}}
+	multiply_per_attempt[3]={0,0,0}
+	amount_per_attempt[3]={0,0,0}
+	WHILE count_loop<3
+		INPUT letter
+		count_loop++
+		i=0
+		WHILE i<4
+			j=0
+			WHILE j<4
+				IF letter==letters[i][j] THEN
+					IF count_selection[i][j]==0 THEN
+						multiply=newrandom_numbers[i][j]
+						count_selection[i][j]++
+						want_to_break=true
+						matched_the_letter=true
+						BREAK
+					ELSE
+						PRINT error message
+						count_loop--
+						check_repeat++
+						want_to_break=true
+						matched_the-letter=true
+						BREAK
+					END IF
+				END IF
+				j++
+			END WHILE
+			IF want_to_break
+				BRAEK
+			END IF
+			i++
+		END WHILE
+			IF matched_the_letter==false THEN
+				PRINT error message
+				count_loop--
+				check_repeat++
+			END IF
+			IF check_repeat==0 THEN
+				total_amount=total_amount*multiply
+				multiply_per_attempt[array_ele1]=multiply
+				amount_per_attempt[array_ele2]=total_amount
+				array_ele1++
+				array_ele2++
+				PRINT current_amount,multiply & total_amount
+				current_amount=total_amount
+			END IF
+			IF count_loop<3 && check_repeat==0 && matched_the_letter==true THEN
+				INPUT yes_no
+				REPEAT
+					IF yes_no=='Y' OR yes_no=='y' THEN
+						IF total_amount>0 THEN
+							penalty_charge=(total_amount*5)/100
+							total_amount=(total_amount*95)/100
+						ELSE
+							penalty_charge=0
+							total_amount=0
+						END IF
+						PRINT penalty_charge AND total_amount
+						EXECUTE store_data()
+						EXECUTE selection_options()
+						RETURN
+					ELSE IF yes_no=='N' OR yes_no=='n' THEN
+						CONTINUE the game
+					ELSE 
+						INPUT yes_no
+					END IF
+				UNTIL yes_no!='Y' && yes_no!='y' && yes_no!='N' && yes_no!='n'
+			END IF
+			check_repeat=0
+			want_to_break=false
+			matched_the_letter=false
+	END WHILE
+	IF count_loop==3 && multiply_per_attempt[0]!=0 && multiply_per_attempt[1]!=0 && multiply_per_attempt[2]!=0 THEN
+		IF multiply_per_attempt[0]==multiply_per_attempt[1]==multiply_per_attempt[2] THEN
+			total_amount+=500
+			bonus=500
+		END IF
+	END IF
+	PRINT final report
+	EXECUTE store_data()
+	EXECUTE selection_options()
+	array_ele1=0
+	array_ele2=0
+RETURN
+
+
+
+create_new_admin_account()
+	has_content=false
+	OPEN admin_account.txt
+	READ content from the text file
+	WHILE !EOF
+		has_content=true
+		READ content from the text file
+	END WHILE
+	CLOSE admin_account.txt
+	IF has_content THEN
+		PRINT message
+		REPEAT
+			INPUT option
+			IF option=='Y' OR option=='y' THEN
+				i=0
+				REPEAT
+					INPUT admin_pass
+					i++
+					IF content==pass
+						INPUT newuser_name & new_password
+						OPEN admin_account.txt 
+						WRITE newuser_name & new_password
+						CLOSE admin_account.txt
+						PRINT success message
+						RETURN
+					ELSE
+						PRINT message to prompt user to valid admin_pass
+					END IF
+				UNTIL i<3
+				RETURN
+			ELSE IF option=='N' OR option=='n' THEN
+				EXECUTE selection_options()
+				RETURN
+			ELSE
+				PRINT message to prompt user to valid option
+			END IF
+		UNTIL option!='Y' && option!='y' && option!='N' && option!='n'
+	ELSE
+		INPUT user_name & password
+		OPEN admin_account.txt
+		WRITE user_name & password to the text file
+		CLOSE admin.txt
+		RETURN
+	END IF
+RETURN
+
+
+
+
+reset_password()
+	count_loop=0
+	INPUT admin_pass
+	REPEAT
+		i=0
+		count_loop++
+		OPEN admin_account.txt
+		READ user_name from the text file
+		WHILE !EOF
+			READ password from the text file
+		END WHILE
+		CLOSE the text file
+		IF password!=pass THEN
+			i++
+			PRINT error message
+			INPUT admin_pass
+		ELSE
+			file="notepad.exe Authentication.txt"
+			OPEN Authentication.txt on the desktop
+			RETURN
+		END IF
+	UNTIL i!=0 && count_loop<2
+	PRINT error message
+RETURN
+
+
+store_data()
+	has_content=false
+	OPEN PlayerRecords.txt
+	READ content from rhw text file
+	WHILE !EOF 
+		has_content=true
+		READ content
+	END WHILE
+	CLOSE the text file
+	OPEN PlayerRecords.txt
+	IF has_content==false THEN
+		WRITE headline & player game details to the text file
+	ELSE
+		WRITE only player details to the text file
+	END IF
+	PRINT success message
+	CLOSE the text file
+RETURN
+
+
+
+menu()
+	PRINT menu options
+	INPUT choice
+RETURN
+
+
+
+help()
+	PRINT new user guidlines and rules and regulations
+RETURN
+
+
+
+view_player_details()
+	count_loop=0
+	INPUT admin_pass
+	REPEAT
+		i=0
+		count_loop++
+		OPEN admin_account.txt
+		READ user_name from the text file
+		WHILE !EOF
+			RAED password from the text file
+		END WHILE
+		CLOSE the text file
+		IF password!=pass
+			i++
+			PRINT error message
+			INPUT admin_pass
+		ELSE
+			file="notepad.exe PlayerRecords.txt"
+			OPEN PlayerRecords.txt on the desktop
+			RETURN
+		END IF
+	UNTIL i!=0 && count_loop<2
+	PRINT error message
+RETURN
+
+
+
+
+displayLetterGrid()
+	letters[4][4]={{'A','B','C','D'},{'E','F','G','H'},{'I','J','K','L'},{'M','N','O','P'}} 
+	i=0
+	WHILE i<9
+		PRINT a space
+		i++
+	END WHILE
+	j=0
+	WHILE j<9 
+		PRINT "-"
+		j++
+	END WHILE
+	PRINT "\n"
+	k=0
+	WHILE k<4
+		l=0
+		WHILE l<9
+			PRINT a space
+			l++
+		END WHILE
+		m=0
+		WHILE m<4
+			PRINT "|"+a space+letters[k][m]+a space
+			IF m==3 THEN
+				PRINT "|"
+			END IF
+			m++
+		END WHILE
+		PRINT "\n"
+		n=0
+		WHILE n<9
+			PRINT a space
+			n++
+		END WHILE
+		WHILE p<9
+			PRINT "-"+a space
+			p++
+		END WHILE
+		PRINT "\n"
+	END WHILE
+RETURN
+
+
+
+new_user_registaration()
+	count_loop=0
+	INPUT admin_pass
+	REPEAT
+		i=0
+		count_loop++
+		OPEN admin_account.txt
+		READ user_name from text file
+		WHILE !EOF
+			READ password from text file
+		END WHILE
+		CLOSE  the text file
+		IF password!=admin_pass THEN
+			i++
+			PRINT error message
+			INPUT admin_pass
+		ELSE
+			INPUT user_name2 & password2
+			hasContent=false
+			OPEN Authentication.txt
+			READ content from the text file
+			WHILE !EOF
+				hasContent=true
+				READ content from the text file
+			END WHILE
+			CLOSE the text file
+			OPEN Authentication.txt
+			IF hasContent==true THEN
+				WRITE user_name2 & password2 
+				CLOSE the text file
+				RETURN
+			ELSE
+				WRITE headline & user_name2
+				password2
+				CLOSE the text file
+				RETURN
+			END IF
+		END IF
+	UNTIL i!=0 && count_loop<2
+	PRINT error message
+RETURN
